@@ -1,0 +1,171 @@
+#!/bin/bash
+
+function opt_test() {
+    echo original parameters $*
+    echo original OPTIND $OPTIND
+    while getopts ":a:bc" opt
+    do
+        case $opt in
+            a)
+                echo "this is -a option. OPTARG=[$OPTARG] OPTIND=[$OPTIND]"
+                ;;
+            b)
+                echo "this is -b option. OPTARG=[$OPTARG] OPTIND=[$OPTIND]"
+                ;;
+            c)
+                echo "this is -c option. OPTARG=[$OPTARG] OPTIND=[$OPTIND]"
+                ;;
+            ?)
+                echo "there is unrecognized parameter."
+                exit 1
+                ;;
+        esac
+    done
+    #通过shift $(($OPTIND - 1))的处理，$*中就只保留了除去选项内容的参数，
+    #可以在后面的shell程序中进行处理
+    shift $(($OPTIND - 1))
+
+    echo remaining parameters $*
+    echo \$1 $1
+    echo \$2 $2
+}
+
+# get host ip v4
+# $1: interface
+# $2: item of inet line(outpur of ifconfig)
+function lookup_if_ipv4() {
+    local n i
+    n="2"
+
+    while getopts ":i:n:" opt
+    do
+        case $opt in
+            i)
+                i="$OPTARG"
+                ;;
+            n)
+                n="$OPTARG"
+                ;;
+            ?)
+                echo "there is unrecognized parameter. $opt"
+                exit 1
+                ;;
+        esac
+    done
+
+    ifconfig $i | awk '/inet[^6]/ {print $'$n'}'
+}
+
+# get host ip v6
+# $1: interface
+# $2: item of inet line(outpur of ifconfig)
+function lookup_if_ipv6() {
+    local n i
+    n="2"
+
+    while getopts ":i:n:" opt
+    do
+        case $opt in
+            i)
+                i="$OPTARG"
+                ;;
+            n)
+                n="$OPTARG"
+                ;;
+            ?)
+                echo "there is unrecognized parameter. $opt"
+                exit 1
+                ;;
+        esac
+    done
+
+    ifconfig $i | awk '/inet6/ {print $'$n'}'
+}
+
+# get ip via taobao API
+function lookup_ip_taobao() {
+    curl https://www.taobao.com/help/getip.php 2> /dev/null | awk -F\" '{print $2}'
+}
+
+# get record list
+function dnspod_list_record() {
+    local token domain offset length
+    offset=0
+    length=3000
+
+    while getopts ":k:d:o:l:" opt
+    do
+        case $opt in
+            k)
+                token="$OPTARG"
+                ;;
+            d)
+                domain="$OPTARG"
+                ;;
+            o)
+                offset="$OPTARG"
+                ;;
+            l)
+                length="$OPTARG"
+                ;;
+            ?)
+                echo "there is unrecognized parameter. $opt"
+                exit 1
+                ;;
+        esac
+    done
+
+    curl -X POST https://dnsapi.cn/Record.List \
+        -F "format=json" \
+        -F "login_token="$token \
+        -F "domain="$domain \
+        -F "offset="$offset \
+        -F "length="$length
+}
+
+# update dnspod record
+function dnspod_update_record() {
+    local token domain id sub rtyp value line
+    line="0"
+
+    while getopts ":k:d:s:t:i:v:l:" opt
+    do
+        case $opt in
+            k)
+                token="$OPTARG"
+                ;;
+            d)
+                domain="$OPTARG"
+                ;;
+            s)
+                sub="$OPTARG"
+                ;;
+            t)
+                rtyp="$OPTARG"
+                ;;
+            i)
+                id="$OPTARG"
+                ;;
+            v)
+                value="$OPTARG"
+                ;;
+            l)
+                line="$OPTARG"
+                ;;
+            ?)
+                echo "there is unrecognized parameter. $opt"
+                exit 1
+                ;;
+        esac
+    done
+
+    curl -X POST https://dnsapi.cn/Record.Modify \
+        -F 'format=json' \
+        -F 'login_token='$token \
+        -F 'domain='$domain \
+        -F 'record_id='$id \
+        -F 'sub_domain='$sub \
+        -F 'value='$value \
+        -F 'record_type='$rtyp \
+        -F 'record_line_id='$line
+}
