@@ -84,7 +84,12 @@ function lookup_if_ipv6() {
 
 # get ip via taobao API
 function lookup_ip_taobao() {
-    curl https://www.taobao.com/help/getip.php 2> /dev/null | awk -F\" '{print $2}'
+    curl https://www.taobao.com/help/getip.php 2>/dev/null | awk -F\" '{print $2}'
+}
+
+# get up via souhu API
+function lookup_ip_souhu() {
+    curl http://pv.sohu.com/cityjson\?ie\=utf-8 2>/dev/null | sed "s/.*\"\([0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\)\".*/\1/"
 }
 
 # get record list
