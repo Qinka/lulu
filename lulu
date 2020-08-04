@@ -52,7 +52,7 @@ function lookup_if_ipv4() {
         esac
     done
 
-    ifconfig $i | awk '/inet[^6]/ {print $'$n'}'
+    ifconfig $i | awk '/inet[^6]/ {print $'$n'}'| tr -d "addr:"
 }
 
 # get host ip v6
