@@ -3,8 +3,7 @@
 function opt_test() {
     echo original parameters $*
     echo original OPTIND $OPTIND
-    while getopts ":a:bc" opt
-    do
+    while getopts ":a:bc" opt; do
         case $opt in
             a)
                 echo "this is -a option. OPTARG=[$OPTARG] OPTIND=[$OPTIND]"
@@ -37,8 +36,8 @@ function lookup_if_ipv4() {
     local n i
     n="2"
 
-    while getopts ":i:n:" opt
-    do
+    unset OPTIND
+    while getopts ":i:n:" opt; do
         case $opt in
             i)
                 i="$OPTARG"
@@ -63,8 +62,8 @@ function lookup_if_ipv6() {
     local n i
     n="2"
 
-    while getopts ":i:n:" opt
-    do
+    unset OPTIND
+    while getopts ":i:n:" opt; do
         case $opt in
             i)
                 i="$OPTARG"
@@ -104,8 +103,8 @@ function dnspod_list_record() {
     offset=0
     length=3000
 
-    while getopts ":k:d:o:l:" opt
-    do
+    unset OPTIND
+    while getopts ":k:d:o:l:" opt; do
         case $opt in
             k)
                 token="$OPTARG"
@@ -139,8 +138,8 @@ function dnspod_update_record() {
     local token domain id sub rtyp value line
     line="0"
 
-    while getopts ":k:d:s:t:i:v:l:" opt
-    do
+    unset OPTIND
+    while getopts ":k:d:s:t:i:v:l:" opt; do
         case $opt in
             k)
                 token="$OPTARG"
